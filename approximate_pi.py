@@ -32,7 +32,7 @@ def generate_ppm_file(taille, nb_points, decimale):
         cv2.putText(images[i],text, (int(taille/2-text_height/2),\
                                      int(taille/2+text_width/2)),\
                                      cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 5)
-        imageio.imwrite(f"out/img{i}_{int(pi_fin)}-{partie_decimale}.ppm", image)
+        imageio.imwrite(f"out/img{i}_{int(pi_fin)}-{partie_decimale}.png", image)
     imageio.mimsave('out/gif_seb.gif', images, duration=1)
 
 if __name__ == "__main__":

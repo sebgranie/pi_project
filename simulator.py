@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 '''
-pi
+Ce programme affiche le nombre pi.
 '''
 import argparse
 from math import sqrt
@@ -14,7 +14,8 @@ def simulator(points, image = None):
     '''
     compteur = 0
     if image is not None:
-        taille = image.shape[0] #return taille des x
+        taille = image.shape[0] #return taille des x donc ici
+                                # le nombre de pixel de l'image
         demi_taille = int(taille/2)
     for _ in range(1, points):
         point_x = random.uniform(-1, 1)
@@ -38,4 +39,4 @@ if __name__ == "__main__":
     parser.add_argument('nombre_de_points', action='store', type=int)
     arguments = parser.parse_args()
     pi = simulator(arguments.nombre_de_points)
-    print(pi)
+    # print(pi)
