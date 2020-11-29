@@ -11,6 +11,17 @@ import os
 import simulator
 import subprocess
 
+class PiEstimator(object):
+    def __init__(self):
+        self.iteration = 0
+        self.sum_pi = 0
+
+    def AddNewPiEstimate(self, pi_estimation):
+        self.sum_pi += pi_estimation
+        self.iteration += 1
+        print(self.iteration)
+        return self.sum_pi / self.iteration
+
 
 def generate_all_ppm_files(taille, nb_points, decimale):
     '''
@@ -20,29 +31,27 @@ def generate_all_ppm_files(taille, nb_points, decimale):
     '''
     # Creation d'une image carré blanche
     image = np.full((taille, taille, 3), 255, dtype="uint8")
-    pi_global = 0
+    pi_estimator = PiEstimator()
 
     # images = []
     create_folder("./out")
     for i in range(0, 10):
-        pi_global = generate_ppm_file(image, pi_global, int(nb_points/10), i, decimale)
+        generate_ppm_file(image, pi_estimator, int(nb_points/10), i, decimale)
 
-def generate_ppm_file(image, pi_global, nb_points_par_image, i, decimale):
+def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     taille = image.shape[0]
     pi_estime = simulator.simulator(nb_points_par_image, image)
     copie_image = copy.deepcopy(image)
-    pi_global += pi_estime
-    pi_fin = pi_global/(i+1)
-    partie_decimale = int((pi_fin-int(pi_fin))*(10**decimale))
+    pi = pi_estimator.AddNewPiEstimate(pi_estime)
+    partie_decimale = int((pi-int(pi))*(10**decimale))
     nb_decimal = f".{decimale}f"
-    text = f"{format(pi_fin,nb_decimal)}"
+    text = f"{format(pi,nb_decimal)}"
     (text_height, text_width), _ = cv2.getTextSize(text,\
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, 5)
     cv2.putText(copie_image, text, (int(taille/2-text_height/2),\
                                     int(taille/2+text_width/2)),\
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 5)
-    imageio.imwrite(f"out/img{i}_{int(pi_fin)}-{partie_decimale}.ppm", copie_image)
-    return pi_global
+    imageio.imwrite(f"out/img{i}_{int(pi)}-{partie_decimale}.ppm", copie_image)
 
 def generate_gif(ppm_folder):
     subprocess.call(f"convert -delay 100 -loop 0 ./{ppm_folder}/img*.ppm ./{ppm_folder}/pi.gif", shell=True)
