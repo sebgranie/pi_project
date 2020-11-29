@@ -8,9 +8,12 @@ import random
 
 def simulator(points, image = None):
     '''
-    Cette fonction retourne une
-    approximation du nombre pi en générant
-    des points appartenant ou non à un cercle.
+    Cette fonction retourne une approximation 
+    du nombre pi en générant des points appartenant 
+    ou non à un cercle. Si une image est passée en 
+    argument, nous représentons les points aléatoires 
+    appartenant au cercle à l'aide d'une couleur 
+    spécifique.
     '''
     compteur = 0
     if image is not None:
