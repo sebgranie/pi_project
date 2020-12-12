@@ -7,37 +7,29 @@ import argparse
 from math import sqrt
 import random
 
-def simulator(points, image=None):
+def simulator(points, list_int=None, list_ext=None):
     '''
-    Cette fonction retourne une approximation du nombre pi
-    en générant aléatoirement des points appartenant ou non
-    à un cercle. Si une image est passée en argument, nous
-    représentons les points aléatoires appartenant au cercle
-    à l'aide d'une couleur spécifique. Cette fonction
-    renvoie une estimation de la valeur de pi.
+    Cette fonction retourne une approximation du nombre pi en générant
+    aléatoirement des points appartenant ou non à un cercle. Si des
+    listes sont renseignées, les coordonnées des points seront
+    appartenant au cercle ou
     '''
-    compteur = 0
-    if image is not None:
-        taille = image.shape[0]
-        demi_taille = int(taille/2)
+    if list_int is None:
+        list_int = []
+    if list_ext is None:
+        list_ext = []
+
     for _ in range(1, points):
         point_x = random.uniform(-1, 1)
         point_y = random.uniform(-1, 1)
         distance = point_x**2 + point_y**2
         distance = sqrt(float(distance))
         if float(distance) < 1.0:
-            if image is not None:
-                # On ajoute 1 aux coordonnées x et y pour
-                # obtenir des valeurs de pixels positives
-                image[int((point_x+1)*demi_taille)]\
-                    [int((point_y+1)*demi_taille)] = (0, 0, 255)
-            compteur += 1
+            list_int.append((point_x, point_y))
         else:
-            if image is not None:
-                image[int((point_x+1)*demi_taille)]\
-                    [int((point_y+1)*demi_taille)] = (238, 130, 238)
-    # print(float(compteur/points)*4.0)
-    return float(compteur/points)*4.0
+            list_ext.append((point_x, point_y))
+
+    return float(len(list_int)/points)*4.0
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Ce programme permet de générer des images ppm marquée par une approximation
+Ce programme permet de générer des images ppm marquées par une approximation
 courante de la valeur de π puis les convertir pour afficher un gif.
 '''
 import argparse
@@ -41,10 +41,11 @@ def validate_all_arguments(arguments):
     image_max_size = 3840
     if arguments.taille_image < 0 or arguments.taille_image > image_max_size:
         raise ValueError(f"La taille de l'image doit etre comprise entre [0, {image_max_size}].")
-    max_nombre_de_points = 1e9
+    max_nombre_de_points = 1e7
     if arguments.nombre_de_point < 0 or arguments.nombre_de_point > max_nombre_de_points:
-        raise ValueError(f"Le nombre de points total de l'image doit etre compris entre [0, {max_nombre_de_points}].")
-    max_nombre_chiffre_virgule = 10
+        raise ValueError(f"Le nombre de points total de l'image doit etre compris entre\
+                        [0, {max_nombre_de_points}].")
+    max_nombre_chiffre_virgule = 7
     if arguments.nombre_chiffre_virgule < 0 or \
         arguments.nombre_chiffre_virgule > max_nombre_chiffre_virgule:
         raise ValueError(f"Le nombre de chiffres apres la virgule doit \
@@ -75,21 +76,43 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     d'obtenir des valeurs convergentes vers pi. La valeur est ensuite écrite
     sur l'image créée et sauvegardée dans le dossier appelée out.
     '''
-    taille = image.shape[0]
     # 1 - Obtention de l'estimation de pi
-    pi_estime = simulator.simulator(nb_points_par_image, image)
+    list_blue, list_pink = [], []
+    pi_estime = simulator.simulator(nb_points_par_image, list_blue, list_pink)
+    color_image_with_points(image, list_blue, list_pink)
+
+    # La copie entière de l'image permet d'écrire le nombre pi
+    # sur celle-ci avant de la sauvegarder au format ppm.
     copie_image = copy.deepcopy(image)
+
     # 2 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
-    partie_decimale = int((pi_val-int(pi_val))*(10**decimale))
-    nb_decimal = f".{decimale}f"
+
     # 3 - Affichage de l'estimation de pi sur l'image
+    nb_decimal = f".{decimale}f"
     write_pi_on_image(copie_image, pi_val, nb_decimal)
+
+    # 4 - Sauvegarde de l'image sur le disque dur
+    partie_decimale = int((pi_val-int(pi_val))*(10**decimale))
     imageio.imwrite(f"out/img{i}_{int(pi_val)}-{partie_decimale}.ppm", copie_image)
+
+def color_image_with_points(image, points_bleu, points_rose):
+    '''
+    Cette fonction affecte la couleur bleu sur chaque pixel appartenant au
+    cercle de rayon 1 et la couleur rose à tous les autres pixels de l'image.
+    '''
+    demi_taille = image.shape[0]//2
+    for coordonnes in points_bleu:
+        image[int((coordonnes[0]+1)*demi_taille)]\
+             [int((coordonnes[1]+1)*demi_taille)] = (0, 0, 255)
+    for coordonnes in points_rose:
+        image[int((coordonnes[0]+1)*demi_taille)]\
+             [int((coordonnes[1]+1)*demi_taille)] = (238, 130, 238)
 
 def write_pi_on_image(image, pi_val, nb_decimal):
     '''
-
+    Cette fonction permet d'écrire la valeur
+    de pi sur l'image spécifiée en paramètre.
     '''
     taille = image.shape[0]
     text = f"{format(pi_val ,nb_decimal)}"
@@ -101,16 +124,17 @@ def write_pi_on_image(image, pi_val, nb_decimal):
 
 def generate_gif(ppm_folder):
     '''
-    Cette fonction utilise le module subprocess pour créer un gif à partir de
-    toutes les images ppm dans un dossier donné.
+    Cette fonction utilise le module subprocess
+    pour créer un gif à partir de toutes
+    les images ppm dans un dossier donné.
     '''
     subprocess.call(f"convert -delay 100 -loop 0 ./{ppm_folder}/img*.ppm ./{ppm_folder}/pi.gif",\
                     shell=True)
 
 def create_or_clean_folder(path):
     '''
-    Cette fonction crée un dossier s'il n'existe pas déjà sans lancer d'erreurs et
-    supprime spn contenu s'il existe deja.
+    Cette fonction crée un dossier s'il n'existe pas déjà sans
+    lancer d'erreurs et supprime son contenu s'il existe deja.
     '''
     if not os.path.exists(path):
         try:
@@ -121,9 +145,9 @@ def create_or_clean_folder(path):
             print("Successfully created the directory %s " % path)
         return
 
-    filelist = [ f for f in os.listdir(path) if (f.endswith(".ppm") or f.endswith(".gif")) ]
-    for f in filelist:
-        os.remove(os.path.join(path, f))
+    filelist = [f for f in os.listdir(path) if (f.endswith(".ppm") or f.endswith(".gif"))]
+    for filename in filelist:
+        os.remove(os.path.join(path, filename))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generation image")
