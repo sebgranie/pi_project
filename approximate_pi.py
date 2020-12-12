@@ -35,8 +35,7 @@ class PiEstimator:
 
 def validate_all_arguments(arguments):
     '''
-    Cette fonction verifie la validite des arguments d'entree
-    du programme.
+    Cette fonction vérifie la validité des arguments en entrée du programme.
     '''
     image_max_size = 3840
     if arguments.taille_image < 0 or arguments.taille_image > image_max_size:
@@ -54,12 +53,10 @@ def validate_all_arguments(arguments):
 
 def generate_all_ppm_files(taille, nb_points, decimale):
     '''
-    Cette fonction génère des images de manière itérative.
-    Elles représentent la répartition des points obtenus
-    aléatoirement par la fonction simulation().
-    Cette fonction utilise les calculs réalisés dans la
-    fonction generate_ppm_file() pour afficher une
-    approximation de la valeur de pi sur l'image.
+    Cette fonction génère des images de manière itérative. Elles représentent
+    la répartition des points obtenus aléatoirement par la fonction simulation().
+    Cette fonction utilise les calculs réalisés dans la fonction generate_ppm_file()
+    pour afficher une approximation de la valeur de pi sur l'image.
     '''
     # Creation d'une image carré blanche
     image = np.full((taille, taille, 3), 255, dtype="uint8")
@@ -116,6 +113,7 @@ def write_pi_on_image(image, pi_val, nb_decimal):
     '''
     taille = image.shape[0]
     text = f"{format(pi_val ,nb_decimal)}"
+
     (text_height, text_width), _ = cv2.getTextSize(text,\
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, 5)
     cv2.putText(image, text, (int(taille/2-text_height/2),\
@@ -124,9 +122,8 @@ def write_pi_on_image(image, pi_val, nb_decimal):
 
 def generate_gif(ppm_folder):
     '''
-    Cette fonction utilise le module subprocess
-    pour créer un gif à partir de toutes
-    les images ppm dans un dossier donné.
+    Cette fonction utilise le module subprocess pour créer un gif
+    à partir de toutes les images ppm dans un dossier donné.
     '''
     subprocess.call(f"convert -delay 100 -loop 0 ./{ppm_folder}/img*.ppm ./{ppm_folder}/pi.gif",\
                     shell=True)
