@@ -33,6 +33,23 @@ class PiEstimator:
         print(self.iteration)
         return self.sum_pi / self.iteration
 
+def validate_all_arguments(arguments):
+    '''
+    Cette fonction verifie la validite des arguments d'entree
+    du programme.
+    '''
+    image_max_size = 3840
+    if arguments.taille_image < 0 or arguments.taille_image > image_max_size:
+        raise ValueError(f"La taille de l'image doit etre comprise entre [0, {image_max_size}].")
+    max_nombre_de_points = 1e9
+    if arguments.nombre_de_point < 0 or arguments.nombre_de_point > max_nombre_de_points:
+        raise ValueError(f"Le nombre de points total de l'image doit etre compris entre [0, {max_nombre_de_points}].")
+    max_nombre_chiffre_virgule = 10
+    if arguments.nombre_chiffre_virgule < 0 or \
+        arguments.nombre_chiffre_virgule > max_nombre_chiffre_virgule:
+        raise ValueError(f"Le nombre de chiffres apres la virgule doit \
+                        etre compris entre [0, {max_nombre_chiffre_virgule}].")
+
 
 def generate_all_ppm_files(taille, nb_points, decimale):
     '''
@@ -46,7 +63,7 @@ def generate_all_ppm_files(taille, nb_points, decimale):
     # Creation d'une image carré blanche
     image = np.full((taille, taille, 3), 255, dtype="uint8")
     pi_estimator = PiEstimator()
-    create_folder("./out")
+    create_or_clean_folder("./out")
     for i in range(0, 10):
         generate_ppm_file(image, pi_estimator, int(nb_points/10), i, decimale)
 
@@ -59,18 +76,28 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     sur l'image créée et sauvegardée dans le dossier appelée out.
     '''
     taille = image.shape[0]
+    # 1 - Obtention de l'estimation de pi
     pi_estime = simulator.simulator(nb_points_par_image, image)
     copie_image = copy.deepcopy(image)
+    # 2 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
     partie_decimale = int((pi_val-int(pi_val))*(10**decimale))
     nb_decimal = f".{decimale}f"
+    # 3 - Affichage de l'estimation de pi sur l'image
+    write_pi_on_image(copie_image, pi_val, nb_decimal)
+    imageio.imwrite(f"out/img{i}_{int(pi_val)}-{partie_decimale}.ppm", copie_image)
+
+def write_pi_on_image(image, pi_val, nb_decimal):
+    '''
+
+    '''
+    taille = image.shape[0]
     text = f"{format(pi_val ,nb_decimal)}"
     (text_height, text_width), _ = cv2.getTextSize(text,\
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, 5)
-    cv2.putText(copie_image, text, (int(taille/2-text_height/2),\
+    cv2.putText(image, text, (int(taille/2-text_height/2),\
                                     int(taille/2+text_width/2)),\
                                     cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 5)
-    imageio.imwrite(f"out/img{i}_{int(pi_val)}-{partie_decimale}.ppm", copie_image)
 
 def generate_gif(ppm_folder):
     '''
@@ -80,10 +107,10 @@ def generate_gif(ppm_folder):
     subprocess.call(f"convert -delay 100 -loop 0 ./{ppm_folder}/img*.ppm ./{ppm_folder}/pi.gif",\
                     shell=True)
 
-def create_folder(path):
+def create_or_clean_folder(path):
     '''
-    Cette fonction crée un dossier s'il n'existe
-    pas déjà sans relever d'erreurs.
+    Cette fonction crée un dossier s'il n'existe pas déjà sans lancer d'erreurs et
+    supprime spn contenu s'il existe deja.
     '''
     if not os.path.exists(path):
         try:
@@ -92,8 +119,11 @@ def create_folder(path):
             print("Creation of the directory %s failed" % path)
         else:
             print("Successfully created the directory %s " % path)
+        return
 
-
+    filelist = [ f for f in os.listdir(path) if (f.endswith(".ppm") or f.endswith(".gif")) ]
+    for f in filelist:
+        os.remove(os.path.join(path, f))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generation image")
@@ -101,6 +131,7 @@ if __name__ == "__main__":
     parser.add_argument('nombre_de_point', action='store', type=int)
     parser.add_argument('nombre_chiffre_virgule', action='store', type=int)
     arguments = parser.parse_args()
+    validate_all_arguments(arguments)
     generate_all_ppm_files(arguments.taille_image, arguments.nombre_de_point,\
                             arguments.nombre_chiffre_virgule)
     generate_gif("out")
