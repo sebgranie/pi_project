@@ -18,16 +18,16 @@ def simulator(points, list_int=None, list_ext=None):
     if list_ext is None: list_ext = []
 
     for _ in range(points):
-        point_x = random.uniform(-1, 1)
-        point_y = random.uniform(-1, 1)
+        point_x = random.uniform(-1.0, 1.0)
+        point_y = random.uniform(-1.0, 1.0)
         distance = point_x**2 + point_y**2
         distance = sqrt(float(distance))
-        if float(distance) < 1.0:
+        if distance < 1.0:
             list_int.append((point_x, point_y))
         else:
             list_ext.append((point_x, point_y))
 
-    return float(len(list_int)/points)*4.0
+    return (float(len(list_int))/float(points))*4.0
 
 
 if __name__ == "__main__":

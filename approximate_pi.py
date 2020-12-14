@@ -19,8 +19,8 @@ class PiEstimator:
     les notations et réduire le nombre de variables utilisées.
     '''
     def __init__(self):
-        self.iteration = 0
-        self.sum_pi = 0
+        self.iteration = 0.0
+        self.sum_pi = 0.0
 
     def add_new_pi_estimate(self, pi_estimation):
         '''
@@ -30,7 +30,6 @@ class PiEstimator:
         '''
         self.sum_pi += pi_estimation
         self.iteration += 1
-        print(self.iteration)
         return self.sum_pi / self.iteration
 
 def validate_all_arguments(arguments):
@@ -58,10 +57,10 @@ def generate_all_ppm_files(taille, nb_points, decimale):
     Cette fonction utilise les calculs réalisés dans la fonction generate_ppm_file()
     pour afficher une approximation de la valeur de pi sur l'image.
     '''
+    create_or_clean_folder("./out")
     # Creation d'une image carré blanche
     image = np.full((taille, taille, 3), 255, dtype="uint8")
     pi_estimator = PiEstimator()
-    create_or_clean_folder("./out")
     for i in range(0, 10):
         generate_ppm_file(image, pi_estimator, int(nb_points/10), i, decimale)
 
@@ -76,20 +75,21 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     # 1 - Obtention de l'estimation de pi
     list_blue, list_pink = [], []
     pi_estime = simulator.simulator(nb_points_par_image, list_blue, list_pink)
+
+    # 2 - Coloration des pixels de l'image en fonction de leur distance au centre.
     color_image_with_points(image, list_blue, list_pink)
 
+    # 3 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
+    pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
+    print(f'{pi_estime} - {pi_val}')
+    # 4 - Affichage de l'estimation de pi sur l'image
     # La copie entière de l'image permet d'écrire le nombre pi
     # sur celle-ci avant de la sauvegarder au format ppm.
     copie_image = copy.deepcopy(image)
-
-    # 2 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
-    pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
-
-    # 3 - Affichage de l'estimation de pi sur l'image
     nb_decimal = f".{decimale}f"
     write_pi_on_image(copie_image, pi_val, nb_decimal)
 
-    # 4 - Sauvegarde de l'image sur le disque dur
+    # 5 - Sauvegarde de l'image sur le disque dur
     partie_decimale = int((pi_val-int(pi_val))*(10**decimale))
     imageio.imwrite(f"out/img{i}_{int(pi_val)}-{partie_decimale}.ppm", copie_image)
 
