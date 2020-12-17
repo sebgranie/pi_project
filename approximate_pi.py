@@ -79,7 +79,7 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     # 2 - Coloration des pixels de l'image en fonction de leur distance au centre.
     color_image_with_points(image, list_blue, list_pink)
     pourcentage = validation_points(image, i, nb_points_par_image)
-    # print(pourcentage)
+    print(pourcentage)
 
     # 3 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
@@ -149,22 +149,12 @@ def create_or_clean_folder(path):
 
 def validation_points(image, i, nb_points_par_image):
     compteur = 0
-    ex_tuple = (0, 0, 0)
+    for row in image:
+        for pixel in row:
+            if pixel.all() != np.array([255, 255, 255]).all():
+                compteur+=1
 
-    if (any('238' or '0' in i for i in image)) :
-
-    # for val_tuple in image[0]:
-        # print(image)
-        # if val_tuple > ex_tuple:
-            compteur+=1
-    # print(i)
-    # print(compteur)
-    # print(image)
-    print(compteur)
-    # print(nb_points_par_image)
-    # print(i)
-
-    pourcentage = (compteur//(nb_points_par_image*(i+1)))*100
+    pourcentage = (compteur/(nb_points_par_image*(i+1)))*100
     return pourcentage
 
 if __name__ == "__main__":
