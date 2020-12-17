@@ -7,7 +7,7 @@ import argparse
 import copy
 import os
 import subprocess
-from cv2 import cv2
+import cv2
 import imageio
 import numpy as np
 import simulator
@@ -39,7 +39,7 @@ def validate_all_arguments(arguments):
     image_max_size = 3840
     if arguments.taille_image < 0 or arguments.taille_image > image_max_size:
         raise ValueError(f"La taille de l'image doit etre comprise entre [0, {image_max_size}].")
-    max_nombre_de_points = 1e7
+    max_nombre_de_points = 1e8
     if arguments.nombre_de_point < 0 or arguments.nombre_de_point > max_nombre_de_points:
         raise ValueError(f"Le nombre de points total de l'image doit etre compris entre\
                         [0, {max_nombre_de_points}].")
@@ -62,7 +62,7 @@ def generate_all_ppm_files(taille, nb_points, decimale):
     image = np.full((taille, taille, 3), 255, dtype="uint8")
     pi_estimator = PiEstimator()
     for i in range(0, 10):
-        generate_ppm_file(image, pi_estimator, int(nb_points/10), i, decimale)
+        generate_ppm_file(image, pi_estimator, nb_points//10, i, decimale)
 
 def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     '''
@@ -78,10 +78,12 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
 
     # 2 - Coloration des pixels de l'image en fonction de leur distance au centre.
     color_image_with_points(image, list_blue, list_pink)
+    pourcentage = validation_points(image, i, nb_points_par_image)
+    # print(pourcentage)
 
     # 3 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
-    print(f'{pi_estime} - {pi_val}')
+
     # 4 - Affichage de l'estimation de pi sur l'image
     # La copie entière de l'image permet d'écrire le nombre pi
     # sur celle-ci avant de la sauvegarder au format ppm.
@@ -113,12 +115,11 @@ def write_pi_on_image(image, pi_val, nb_decimal):
     '''
     taille = image.shape[0]
     text = f"{format(pi_val ,nb_decimal)}"
-
     (text_height, text_width), _ = cv2.getTextSize(text,\
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, 5)
-    cv2.putText(image, text, (int(taille/2-text_height/2),\
-                                    int(taille/2+text_width/2)),\
-                                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 5)
+                                    cv2.FONT_HERSHEY_SIMPLEX, taille/400, 3)
+    cv2.putText(image, text, (int((taille-text_height)/2),\
+                                    int((taille+text_width)/2)),\
+                                    cv2.FONT_HERSHEY_SIMPLEX, taille/400, (0, 0, 0), 3)
 
 def generate_gif(ppm_folder):
     '''
@@ -145,6 +146,26 @@ def create_or_clean_folder(path):
     filelist = [f for f in os.listdir(path) if (f.endswith(".ppm") or f.endswith(".gif"))]
     for filename in filelist:
         os.remove(os.path.join(path, filename))
+
+def validation_points(image, i, nb_points_par_image):
+    compteur = 0
+    ex_tuple = (0, 0, 0)
+
+    if (any('238' or '0' in i for i in image)) :
+
+    # for val_tuple in image[0]:
+        # print(image)
+        # if val_tuple > ex_tuple:
+            compteur+=1
+    # print(i)
+    # print(compteur)
+    # print(image)
+    print(compteur)
+    # print(nb_points_par_image)
+    # print(i)
+
+    pourcentage = (compteur//(nb_points_par_image*(i+1)))*100
+    return pourcentage
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generation image")

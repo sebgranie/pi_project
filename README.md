@@ -12,15 +12,11 @@
 
 J'ai choisi d'utiliser la librairie `numpy` afin de faciliter la manipulation de matrices dans la fonction `generate_all_ppm_files()` spécifiquement lors de la création d'une image initialement blanche.
 
-Installation:
-
 ```
 pip3 install numpy
 ```
 
 - **imageio**
-
-Installation:
 
 ```
 pip3 install imageio
@@ -28,23 +24,17 @@ pip3 install imageio
 
 - **opencv**
 
-Installation:
-
 ```
 pip3 install opencv-python
 ```
 
 - **pylint**
 
-Installation:
-
 ```
 sudo apt install pylint
 ```
 
 - **convert**
-
-Installation:
 
 ```
 sudo apt install graphicsmagick-imagemagick-compact
@@ -64,8 +54,7 @@ Ce projet se divise en l'implémentation d'un module `simulator.py` et d'un prog
 
 ### Module simulator.py :
 
-L'objectif de ce module est de renvoyer une estimation de la valeur de pi. Pour cela j'ai appliqué la méthode de Monte-Carlo grâce au module python `random` et de sa méthode `uniform` dans l'intervalle [-1, 1]. Une fois ces points générés, je calcule la distance entre le centre de l'image, de coordonnées (0,0), et chacun de ces points par la formule usuelle:
-![Formule de la distance entre deux points](distance_image.png)
+L'objectif de ce module est de renvoyer une estimation de la valeur de pi. Pour cela j'ai appliqué la méthode de Monte-Carlo grâce au module python `random` et de sa méthode `uniform` dans l'intervalle [-1, 1]. Une fois ces points générés, je calcule la distance entre le centre de l'image, de coordonnées (0,0), et chacun de ces points par la formule usuelle de calcul de distance entre deux points.
 
 Comme le module `simulator.py` est seulement chargé d'estimer la valeur de pi, j'ai décidé d'ajouter deux arguments optionnels `list_int` et `list_ext`. Ils permettent de stocker l'ensemble des coordonnées des points sous forme de tuples de deux valeurs. Comme ces deux variables sont passées par références, la fonction appelante pourra les récupérer une fois modifiées.
 
@@ -98,5 +87,11 @@ Enfin, la fonction `generate_gif()` permet, une fois les 10 images ppm créées,
 J'utilise le module `argparse` pour me permettre de renseigner les arguments à spécifier en entrée de programme : `taille_image`, `nombre_de_point` et `nombre_chiffre_virgule`. J'ai pris cette décision car c'est un moyen facile pour l'utilisateur de renseigner ces arguments directement en ligne de commande et ce module génère des messages d'aide utilisateur.
 
 Une fois le projet réussi, j'utilise pylint afin de rendre un code qui respecte les normes et conventions utilisées par les développeurs.
+
+---
+
+Afin de déterminer la compléxité des programmes de mon projet, j'ai étudié l'ensemble des opérations que j'ai réalisé. En complément de cette première estimation, j'ai testé la durée d'exécution de mon programme en fonction de ses entrées. Dans mon programme `data_graph.py`, j'ai utilisé le module `matplotlib` pour tracer un graphique me renseignant sur la complexité temporelle de mon projet. Il assure que pour une taille d'image donnée, le temps d'exécution varie linéairement `O(n)` en fonction du nombre de points en entrée du programme. Pour un nombre de points donné, le programme possède une complexité logarithmique `O(log(n))`.
+Pour un souci d'optimisation, je pourrai adapter mon programme à une exécution multi-threading me permettant potentiellement de gagner en temps lors de son exécution. Pour le moment l'exécution est centralisée sur un seul coeur avec une utilisation estimée à 150%, soit un thread et demi sur les deux disponibles sur ma machine.
+J'ai implémenté le programme `test.py` pour réaliser mes tests pour mesurer la durée d'exécution de mon programme en fonction de ses entrées. Une fois ces données recueillies, le programme `data_graph.py` permets d'afficher un graphique nous rendant compte du niveau de compléxité des modules de mon projet.
 
 ---
