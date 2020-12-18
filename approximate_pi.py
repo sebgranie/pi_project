@@ -78,8 +78,9 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
 
     # 2 - Coloration des pixels de l'image en fonction de leur distance au centre.
     color_image_with_points(image, list_blue, list_pink)
-    pourcentage = validation_points(image, i, nb_points_par_image)
-    print(pourcentage)
+
+    # pourcentage = validation_points(image, i, nb_points_par_image)
+    # print(pourcentage)
 
     # 3 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
@@ -148,22 +149,27 @@ def create_or_clean_folder(path):
         os.remove(os.path.join(path, filename))
 
 def validation_points(image, i, nb_points_par_image):
+    '''
+    Cette fonction permet de m'assurer qu'un bon pourcentage
+    des points tirés tombent à des endroits différents sur
+    l'image, c'est à dire de limiter le chevauchement.
+    '''
     compteur = 0
     for row in image:
         for pixel in row:
             if pixel.all() != np.array([255, 255, 255]).all():
-                compteur+=1
+                compteur += 1
 
     pourcentage = (compteur/(nb_points_par_image*(i+1)))*100
     return pourcentage
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="generation image")
-    parser.add_argument('taille_image', action='store', type=int)
-    parser.add_argument('nombre_de_point', action='store', type=int)
-    parser.add_argument('nombre_chiffre_virgule', action='store', type=int)
-    arguments = parser.parse_args()
-    validate_all_arguments(arguments)
-    generate_all_ppm_files(arguments.taille_image, arguments.nombre_de_point,\
-                            arguments.nombre_chiffre_virgule)
+    PARSER = argparse.ArgumentParser(description="generation image")
+    PARSER.add_argument('taille_image', action='store', type=int)
+    PARSER.add_argument('nombre_de_point', action='store', type=int)
+    PARSER.add_argument('nombre_chiffre_virgule', action='store', type=int)
+    ARGUMENTS = PARSER.parse_args()
+    validate_all_arguments(ARGUMENTS)
+    generate_all_ppm_files(ARGUMENTS.taille_image, ARGUMENTS.nombre_de_point,\
+                            ARGUMENTS.nombre_chiffre_virgule)
     generate_gif("out")

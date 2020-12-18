@@ -32,8 +32,8 @@ def simulator(points, list_int=None, list_ext=None):
     return (float(len(list_int))/float(points))*4.0
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Approximation de pi")
-    parser.add_argument('nombre_de_points', action='store', type=int)
-    arguments = parser.parse_args()
-    pi_val = simulator(arguments.nombre_de_points)
-    print(pi_val)
+    PARSER = argparse.ArgumentParser(description="Approximation de pi")
+    PARSER.add_argument('nombre_de_points', action='store', type=int)
+    ARGUMENTS = PARSER.parse_args()
+    PI_VAL = simulator(ARGUMENTS.nombre_de_points)
+    print(PI_VAL)
