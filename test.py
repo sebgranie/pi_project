@@ -6,10 +6,6 @@ données que j'ai exploitées dans les modules
 complexite_temporelle.py et complexite_spatiale.py.
 '''
 import time
-# from approximate_pi import PiEstimator, validate_all_arguments, generate_all_ppm_files,\
-#     generate_ppm_file, color_image_with_points, write_pi_on_image, generate_gif,\
-#     create_or_clean_folder, validation_points
-
 from approximate_pi import validate_all_arguments, generate_all_ppm_files, generate_gif
 
 class Arguments:

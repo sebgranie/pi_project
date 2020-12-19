@@ -50,7 +50,7 @@ def validate_all_arguments(arguments):
                         etre compris entre [0, {max_nombre_chiffre_virgule}].")
 
 
-def generate_all_ppm_files(taille, nb_points, decimale):
+def generate_all_ppm_files(taille, nb_points, decimale, *pourcentage):
     '''
     Cette fonction génère des images de manière itérative. Elles représentent
     la répartition des points obtenus aléatoirement par la fonction simulation().
@@ -61,6 +61,8 @@ def generate_all_ppm_files(taille, nb_points, decimale):
     # Creation d'une image carré blanche
     image = np.full((taille, taille, 3), 255, dtype="uint8")
     pi_estimator = PiEstimator()
+    if ARGUMENTS.p:
+        print("Voici le pourcentage de points qui ne se chevauchent pas sur l'image: ")
     for i in range(0, 10):
         generate_ppm_file(image, pi_estimator, nb_points//10, i, decimale)
 
@@ -79,8 +81,9 @@ def generate_ppm_file(image, pi_estimator, nb_points_par_image, i, decimale):
     # 2 - Coloration des pixels de l'image en fonction de leur distance au centre.
     color_image_with_points(image, list_blue, list_pink)
 
-    # pourcentage = validation_points(image, i, nb_points_par_image)
-    # print(pourcentage)
+    if ARGUMENTS.p:
+        pourcentage = validation_points(image, i, nb_points_par_image)
+        print(f'Image {i+1} : {int(pourcentage)} %')
 
     # 3 - Nouvelle estimation ajoutée pour actualiser la moyenne globale
     pi_val = pi_estimator.add_new_pi_estimate(pi_estime)
@@ -168,6 +171,7 @@ if __name__ == "__main__":
     PARSER.add_argument('taille_image', action='store', type=int)
     PARSER.add_argument('nombre_de_point', action='store', type=int)
     PARSER.add_argument('nombre_chiffre_virgule', action='store', type=int)
+    PARSER.add_argument('--p', '--pourcentage_valid_points', type=bool, default=False)
     ARGUMENTS = PARSER.parse_args()
     validate_all_arguments(ARGUMENTS)
     generate_all_ppm_files(ARGUMENTS.taille_image, ARGUMENTS.nombre_de_point,\
